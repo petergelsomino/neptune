@@ -35,7 +35,7 @@ export async function getUserLeagues() {
 }
 
 export async function getLeagueDetails(leagueId: string) {
-    return apiRequest(`/leagues/${leagueId}`);
+    return apiRequest<{ id: string; league_name: string }>(`/leagues/${leagueId}`);
 }
 
 export async function getLeagueSeasons(leagueId: string) {
