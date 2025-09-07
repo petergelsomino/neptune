@@ -16,12 +16,20 @@ function LeagueDetails() {
                 <h3 className="font-semibold">Your Picks</h3>
                 <p>Current picks for this week...</p>
             </div>
-            <button
-                onClick={() => navigate(`/league/${leagueId}/picks`)}
-                className="bg-green-500 text-white px-4 py-2 rounded"
-            >
-                Select Games
-            </button>
+            <div className="space-y-2">
+                <button
+                    onClick={() => navigate(`/league/${leagueId}/seasons`)}
+                    className="bg-green-500 text-white px-4 py-2 rounded mr-2"
+                >
+                    View Seasons
+                </button>
+                <button
+                    onClick={() => navigate(`/league/${leagueId}/picks`)}
+                    className="bg-blue-500 text-white px-4 py-2 rounded"
+                >
+                    Quick Picks (Legacy)
+                </button>
+            </div>
         </div>
     );
 }
