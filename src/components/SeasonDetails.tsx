@@ -1,5 +1,5 @@
 import { useParams, useNavigate } from "react-router-dom";
-import { getLeagueDetails } from "../api";
+import { getLeagueFromUserLeagues } from "../api";
 import { 
     getLeagueSeasons, 
     getSeasonLeaderboard, 
@@ -19,8 +19,8 @@ function SeasonDetails() {
     const { leagueId, seasonId } = useParams();
     const navigate = useNavigate();
 
-    const { data: league, loading: leagueLoading, error: leagueError } = useApi<League>(
-        () => getLeagueDetails(leagueId!),
+    const { data: league, loading: leagueLoading, error: leagueError } = useApi<League | null>(
+        () => getLeagueFromUserLeagues(leagueId!),
         [leagueId]
     );
 
@@ -60,7 +60,6 @@ function SeasonDetails() {
     const currentWeek = currentWeekData?.weekNumber || myPicks?.currentWeek || leaguePicks?.currentWeek || 1;
 
     const isLoading = leagueLoading || seasonsLoading || leaderboardLoading || myPicksLoading || leaguePicksLoading || currentWeekLoading;
-    const hasError = leagueError || seasonsError || leaderboardError || myPicksError || leaguePicksError || currentWeekError;
 
     if (isLoading) {
         return (

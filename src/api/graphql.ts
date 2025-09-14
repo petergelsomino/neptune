@@ -1,4 +1,5 @@
 import { GraphQLClient } from 'graphql-request';
+import { logout } from './index';
 
 const GRAPHQL_ENDPOINT = process.env.REACT_APP_GRAPHQL_URL || 'http://localhost:8080/query';
 
@@ -11,6 +12,21 @@ export function createGraphQLClient() {
             ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
     });
+}
+
+// Wrapper function to handle GraphQL requests with unauthorized error handling
+export async function graphQLRequest<T>(query: string, variables?: any): Promise<T> {
+    const client = createGraphQLClient();
+    try {
+        return await client.request<T>(query, variables);
+    } catch (error: any) {
+        // Check if it's an unauthorized error
+        if (error?.response?.status === 401 || error?.message?.includes('Unauthorized') || error?.message?.includes('401')) {
+            logout();
+            window.location.href = '/login';
+        }
+        throw error;
+    }
 }
 
 // GraphQL Queries
@@ -209,8 +225,7 @@ export interface SeasonWeek {
 
 // GraphQL API functions
 export async function getLeagueSeasons(leagueId: string): Promise<Season[]> {
-    const client = createGraphQLClient();
-    const response = await client.request<{ GetLeagueSeasonsById: Season[] }>(
+    const response = await graphQLRequest<{ GetLeagueSeasonsById: Season[] }>(
         GET_LEAGUE_SEASONS_BY_ID,
         { leagueID: leagueId }
     );
@@ -218,16 +233,14 @@ export async function getLeagueSeasons(leagueId: string): Promise<Season[]> {
 }
 
 export async function getWeeklyGames(): Promise<WeeklyGame[]> {
-    const client = createGraphQLClient();
-    const response = await client.request<{ GetWeeklyNflGameSpreads: WeeklyGame[] }>(
+    const response = await graphQLRequest<{ GetWeeklyNflGameSpreads: WeeklyGame[] }>(
         GET_WEEKLY_NFL_GAME_SPREADS
     );
     return response.GetWeeklyNflGameSpreads;
 }
 
 export async function createGamePicks(input: NewGamePickInput[]): Promise<GamePick[]> {
-    const client = createGraphQLClient();
-    const response = await client.request<{ CreateGamePicks: GamePick[] }>(
+    const response = await graphQLRequest<{ CreateGamePicks: GamePick[] }>(
         CREATE_GAME_PICKS,
         { input }
     );
@@ -241,8 +254,7 @@ export async function createGamePick(input: NewGamePickInput): Promise<GamePick>
 }
 
 export async function getSeasonLeaderboard(seasonId: string): Promise<SeasonLeaderboard> {
-    const client = createGraphQLClient();
-    const response = await client.request<{ seasonLeaderboard: SeasonLeaderboard }>(
+    const response = await graphQLRequest<{ seasonLeaderboard: SeasonLeaderboard }>(
         SEASON_LEADERBOARD,
         { seasonId }
     );
@@ -250,8 +262,7 @@ export async function getSeasonLeaderboard(seasonId: string): Promise<SeasonLead
 }
 
 export async function getMySeasonPicks(seasonId: string): Promise<UserSeasonPicks> {
-    const client = createGraphQLClient();
-    const response = await client.request<{ mySeasonPicks: UserSeasonPicks }>(
+    const response = await graphQLRequest<{ mySeasonPicks: UserSeasonPicks }>(
         MY_SEASON_PICKS,
         { seasonId }
     );
@@ -259,8 +270,7 @@ export async function getMySeasonPicks(seasonId: string): Promise<UserSeasonPick
 }
 
 export async function getSeasonLeaguePicks(seasonId: string): Promise<SeasonLeaguePicks> {
-    const client = createGraphQLClient();
-    const response = await client.request<{ seasonLeaguePicks: SeasonLeaguePicks }>(
+    const response = await graphQLRequest<{ seasonLeaguePicks: SeasonLeaguePicks }>(
         SEASON_LEAGUE_PICKS,
         { seasonId }
     );
@@ -268,8 +278,7 @@ export async function getSeasonLeaguePicks(seasonId: string): Promise<SeasonLeag
 }
 
 export async function getCurrentSeasonWeek(seasonId: string): Promise<SeasonWeek> {
-    const client = createGraphQLClient();
-    const response = await client.request<{ getCurrentSeasonWeek: SeasonWeek }>(
+    const response = await graphQLRequest<{ getCurrentSeasonWeek: SeasonWeek }>(
         GET_CURRENT_SEASON_WEEK,
         { seasonId }
     );

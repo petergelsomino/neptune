@@ -1,6 +1,7 @@
 import { useParams } from "react-router-dom";
 import { useState } from "react";
 import { getWeeklyGames as getWeeklyGamesGraphQL, createGamePicks, getCurrentSeasonWeek, WeeklyGame, NewGamePickInput } from "../api/graphql";
+import { getLeagueFromUserLeagues } from "../api";
 import { useApi, useAsyncAction } from "../hooks/useApi";
 
 interface Game {
@@ -25,6 +26,12 @@ function WeeklyPicks() {
     const [selectedPicks, setSelectedPicks] = useState<Record<string, {points: number, team: 'home' | 'away', spread: number}>>({});
     const [showSuccessPopup, setShowSuccessPopup] = useState(false);
     
+    // Fetch league data
+    const { data: league, loading: leagueLoading, error: leagueError } = useApi<{id: string; league_name: string} | null>(
+        () => leagueId ? getLeagueFromUserLeagues(leagueId) : Promise.reject("No leagueId"),
+        [leagueId]
+    );
+
     // Fetch current season week
     const { data: currentWeekData, loading: weekLoading, error: weekError } = useApi(
         () => seasonId ? getCurrentSeasonWeek(seasonId) : Promise.reject("No seasonId"),
@@ -137,7 +144,7 @@ function WeeklyPicks() {
     const availablePoints = getAvailablePoints();
 
     // Loading state
-    if (gamesLoading || weekLoading) {
+    if (gamesLoading || weekLoading || leagueLoading) {
         return (
             <div className="p-4 max-w-4xl mx-auto">
                 <div className="flex justify-center items-center h-64">
@@ -148,12 +155,12 @@ function WeeklyPicks() {
     }
 
     // Error state
-    if (gamesError || weekError) {
+    if (gamesError || weekError || leagueError) {
         return (
             <div className="p-4 max-w-4xl mx-auto">
                 <div className="bg-red-50 border border-red-200 rounded-lg p-4">
                     <h3 className="text-red-800 font-semibold mb-2">Error Loading Data</h3>
-                    <p className="text-red-600">{gamesError || weekError}</p>
+                    <p className="text-red-600">{gamesError || weekError || leagueError}</p>
                 </div>
             </div>
         );
@@ -161,7 +168,7 @@ function WeeklyPicks() {
 
     return (
         <div className="p-4 max-w-6xl mx-auto">
-            <h2 className="text-2xl font-bold mb-2">Week {currentWeekData?.weekNumber || 1} Picks - League {leagueId}</h2>
+            <h2 className="text-2xl font-bold mb-2">Week {currentWeekData?.weekNumber || 1} Picks - {league?.league_name || 'League'}</h2>
             <p className="text-gray-600 mb-2">Select 3 games and assign 1, 2, or 3 points to each pick</p>
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-6">
                 <p className="text-blue-800 text-sm">

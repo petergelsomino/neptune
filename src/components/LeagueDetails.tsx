@@ -1,5 +1,5 @@
 import { useParams, useNavigate } from "react-router-dom";
-import { getLeagueDetails, getLeagueSeasons } from "../api";
+import { getLeagueFromUserLeagues } from "../api";
 import { getLeagueSeasons as getGraphQLSeasons, Season } from "../api/graphql";
 import { useApi } from "../hooks/useApi";
 
@@ -12,8 +12,8 @@ function LeagueDetails() {
     const { leagueId } = useParams();
     const navigate = useNavigate();
 
-    const { data: league, loading: leagueLoading, error: leagueError } = useApi<League>(
-        () => getLeagueDetails(leagueId!),
+    const { data: league, loading: leagueLoading, error: leagueError } = useApi<League | null>(
+        () => getLeagueFromUserLeagues(leagueId!),
         [leagueId]
     );
 
@@ -28,7 +28,7 @@ function LeagueDetails() {
     ];
 
     const displaySeasons = seasons || mockSeasons;
-    const displayLeague = league || { league_name: `League ${leagueId}` };
+    const displayLeague = league || { league_name: "League" };
 
     if (leagueLoading || seasonsLoading) {
         return (
@@ -41,15 +41,9 @@ function LeagueDetails() {
     }
 
     return (
-        <div className="p-4">
+        <div className="p-4 max-w-6xl mx-auto">
             <h2 className="text-xl mb-6">{displayLeague.league_name}</h2>
             
-            {(leagueError || seasonsError) && (
-                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-4">
-                    <p className="text-yellow-800">Could not load data from server</p>
-                    <p className="text-sm text-yellow-600">Using fallback data for development...</p>
-                </div>
-            )}
 
             <div className="mb-6">
                 <h3 className="font-semibold mb-4">Seasons</h3>

@@ -15,6 +15,13 @@ export async function apiRequest<T>(
     });
 
     if (!res.ok) {
+        // Handle unauthorized responses
+        if (res.status === 401) {
+            logout();
+            window.location.href = '/login';
+            throw new Error('Unauthorized');
+        }
+        
         const errorText = await res.text();
         throw new Error(errorText || res.statusText);
     }
@@ -29,9 +36,18 @@ export async function login(email: string, password: string) {
     });
 }
 
+export function logout() {
+    localStorage.removeItem("token");
+}
+
 // League/Group endpoints
 export async function getUserLeagues() {
-    return apiRequest("/me/leagues");
+    return apiRequest<{ id: string; league_name: string }[]>("/me/leagues");
+}
+
+export async function getLeagueFromUserLeagues(leagueId: string) {
+    const leagues = await getUserLeagues();
+    return leagues.find(league => league.id === leagueId) || null;
 }
 
 export async function getLeagueDetails(leagueId: string) {
