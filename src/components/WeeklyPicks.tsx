@@ -108,7 +108,8 @@ function WeeklyPicks() {
                     opponent_team_name: pick.team === 'home' ? game.awayTeam : game.homeTeam,
                     spread_selection: Math.round(pick.spread * 10), // Convert spread to integer by multiplying by 10
                     spread_result: 0, // Will be updated when game is completed
-                    points_assigned: pick.points
+                    points_assigned: pick.points,
+                    odds_game_id: game.id
                 };
             }).filter(Boolean);
 
@@ -118,9 +119,10 @@ function WeeklyPicks() {
             setSelectedPicks({});
             setShowSuccessPopup(true);
             
-            // Auto-hide popup after 3 seconds
+            // Auto-hide popup after 3 seconds and refresh page
             setTimeout(() => {
                 setShowSuccessPopup(false);
+                window.location.reload();
             }, 3000);
         } catch (error) {
             console.error('Failed to submit picks:', error);
@@ -181,7 +183,10 @@ function WeeklyPicks() {
                         <h3 className="text-xl font-bold text-green-600 mb-2">Picks Submitted!</h3>
                         <p className="text-gray-600">Your picks have been successfully submitted. Good luck!</p>
                         <button 
-                            onClick={() => setShowSuccessPopup(false)}
+                            onClick={() => {
+                                setShowSuccessPopup(false);
+                                window.location.reload();
+                            }}
                             className="mt-4 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700"
                         >
                             Awesome!

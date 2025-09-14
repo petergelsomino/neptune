@@ -54,6 +54,7 @@ export const CREATE_GAME_PICKS = `
       spread_selection
       spread_result
       points_assigned
+      oddsGameId
     }
   }
 `;
@@ -159,6 +160,7 @@ export interface NewGamePickInput {
     spread_selection: number; // int32 in backend
     spread_result: number;    // int32 in backend
     points_assigned: number;  // int32 in backend
+    odds_game_id: string;
 }
 
 export interface LeaderboardEntry {
