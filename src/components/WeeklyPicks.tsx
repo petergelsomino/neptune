@@ -1,6 +1,6 @@
 import { useParams } from "react-router-dom";
 import { useState } from "react";
-import { getWeeklyGames as getWeeklyGamesGraphQL, createGamePick, WeeklyGame, NewGamePickInput } from "../api/graphql";
+import { getWeeklyGames as getWeeklyGamesGraphQL, createGamePicks, getCurrentSeasonWeek, WeeklyGame, NewGamePickInput } from "../api/graphql";
 import { useApi, useAsyncAction } from "../hooks/useApi";
 
 interface Game {
@@ -19,38 +19,17 @@ interface UserPick {
     selectedSpread: number;
 }
 
-const mockGames: Game[] = [
-    { 
-        id: "game1", 
-        homeTeam: "Buffalo Bills", 
-        awayTeam: "Miami Dolphins", 
-        homeSpread: -3.5,
-        awaySpread: 3.5,
-        gameTime: "1:00 PM ET" 
-    },
-    { 
-        id: "game2", 
-        homeTeam: "Kansas City Chiefs", 
-        awayTeam: "Las Vegas Raiders", 
-        homeSpread: -7,
-        awaySpread: 7,
-        gameTime: "4:25 PM ET" 
-    },
-    { 
-        id: "game3", 
-        homeTeam: "Dallas Cowboys", 
-        awayTeam: "Philadelphia Eagles", 
-        homeSpread: 2.5,
-        awaySpread: -2.5,
-        gameTime: "8:20 PM ET" 
-    },
-];
 
 function WeeklyPicks() {
     const { leagueId, seasonId } = useParams<{ leagueId: string; seasonId?: string }>();
     const [selectedPicks, setSelectedPicks] = useState<Record<string, {points: number, team: 'home' | 'away', spread: number}>>({});
-    const [currentWeek] = useState("f4860615-9e98-450a-86df-b0f6b3d856ea");
-    const currentSeason = seasonId || "0c879d89-99b4-4e9f-9b61-fedb37d31c85";
+    const [showSuccessPopup, setShowSuccessPopup] = useState(false);
+    
+    // Fetch current season week
+    const { data: currentWeekData, loading: weekLoading, error: weekError } = useApi(
+        () => seasonId ? getCurrentSeasonWeek(seasonId) : Promise.reject("No seasonId"),
+        [seasonId]
+    );
     
     // Fetch games using GraphQL
     const { data: weeklyGames, loading: gamesLoading, error: gamesError } = useApi<WeeklyGame[]>(
@@ -73,13 +52,10 @@ function WeeklyPicks() {
         })
     })) || [];
     
-    // Mock existing user picks for now
-    const userPicks: UserPick[] = [{ gameId: "game1", points: 2, selectedTeam: 'away', selectedSpread: 3.5 }];
+    // TODO: Fetch existing user picks from API
+    const userPicks: UserPick[] = [];
     
     const { loading: submitting, error: submitError, execute: executeSubmit } = useAsyncAction();
-
-    // Fallback to mock data if API fails
-    const displayGames = games.length > 0 ? games : mockGames;
 
     const getAvailablePoints = () => {
         const usedPoints = Object.values(selectedPicks).map(pick => pick.points);
@@ -117,32 +93,35 @@ function WeeklyPicks() {
     };
 
     const handleSubmitPicks = async () => {
-        if (Object.keys(selectedPicks).length === 0) return;
+        if (Object.keys(selectedPicks).length === 0 || !currentWeekData || !seasonId) return;
 
         try {
-            // Submit each pick individually using GraphQL mutation
-            const pickPromises = Object.entries(selectedPicks).map(([gameId, pick]) => {
-                const game = displayGames.find(g => g.id === gameId);
-                if (!game) return Promise.resolve();
+            // Create array of picks to submit all at once using GraphQL mutation
+            const picksToSubmit: NewGamePickInput[] = Object.entries(selectedPicks).map(([gameId, pick]) => {
+                const game = games.find(g => g.id === gameId);
+                if (!game) throw new Error(`Game not found: ${gameId}`);
                 
-                const input: NewGamePickInput = {
-                    season_id: currentSeason,
-                    week_id: currentWeek,
+                return {
+                    season_id: seasonId,
+                    week_id: currentWeekData.weekId,
                     selected_team_name: pick.team === 'home' ? game.homeTeam : game.awayTeam,
                     opponent_team_name: pick.team === 'home' ? game.awayTeam : game.homeTeam,
-                    spread_selection: pick.spread,
+                    spread_selection: Math.round(pick.spread * 10), // Convert spread to integer by multiplying by 10
                     spread_result: 0, // Will be updated when game is completed
                     points_assigned: pick.points
                 };
+            }).filter(Boolean);
 
-                return createGamePick(input);
-            });
-
-            await executeSubmit(() => Promise.all(pickPromises));
+            await executeSubmit(() => createGamePicks(picksToSubmit));
             
-            // Clear selected picks and refetch user picks
+            // Clear selected picks and show success popup
             setSelectedPicks({});
-            // TODO: Refetch user picks or update local state
+            setShowSuccessPopup(true);
+            
+            // Auto-hide popup after 3 seconds
+            setTimeout(() => {
+                setShowSuccessPopup(false);
+            }, 3000);
         } catch (error) {
             console.error('Failed to submit picks:', error);
         }
@@ -156,42 +135,68 @@ function WeeklyPicks() {
     const availablePoints = getAvailablePoints();
 
     // Loading state
-    if (gamesLoading) {
+    if (gamesLoading || weekLoading) {
         return (
             <div className="p-4 max-w-4xl mx-auto">
                 <div className="flex justify-center items-center h-64">
-                    <div className="text-lg text-gray-600">Loading games...</div>
+                    <div className="text-lg text-gray-600">Loading...</div>
                 </div>
             </div>
         );
     }
 
     // Error state
-    if (gamesError) {
+    if (gamesError || weekError) {
         return (
             <div className="p-4 max-w-4xl mx-auto">
                 <div className="bg-red-50 border border-red-200 rounded-lg p-4">
                     <h3 className="text-red-800 font-semibold mb-2">Error Loading Data</h3>
-                    <p className="text-red-600">{gamesError}</p>
-                    <p className="text-sm text-red-600 mt-2">Using mock data for development...</p>
+                    <p className="text-red-600">{gamesError || weekError}</p>
                 </div>
             </div>
         );
     }
 
     return (
-        <div className="p-4 max-w-4xl mx-auto">
-            <h2 className="text-2xl font-bold mb-2">Week 1 Picks - League {leagueId}</h2>
-            <p className="text-gray-600 mb-6">Select 3 games and assign 1, 2, or 3 points to each pick</p>
+        <div className="p-4 max-w-6xl mx-auto">
+            <h2 className="text-2xl font-bold mb-2">Week {currentWeekData?.weekNumber || 1} Picks - League {leagueId}</h2>
+            <p className="text-gray-600 mb-2">Select 3 games and assign 1, 2, or 3 points to each pick</p>
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-6">
+                <p className="text-blue-800 text-sm">
+                    ℹ️ Games will appear 24 hours before they are eligible for selection.
+                </p>
+            </div>
             
             {submitError && (
                 <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
                     <p className="text-red-600">Failed to submit picks: {submitError}</p>
                 </div>
             )}
+
+            {/* Success Popup */}
+            {showSuccessPopup && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                    <div className="bg-white rounded-lg p-8 text-center max-w-sm mx-4">
+                        <div className="text-6xl mb-4">🎉</div>
+                        <h3 className="text-xl font-bold text-green-600 mb-2">Picks Submitted!</h3>
+                        <p className="text-gray-600">Your picks have been successfully submitted. Good luck!</p>
+                        <button 
+                            onClick={() => setShowSuccessPopup(false)}
+                            className="mt-4 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700"
+                        >
+                            Awesome!
+                        </button>
+                    </div>
+                </div>
+            )}
             
-            <div className="grid gap-4">
-                {displayGames.map((game) => {
+            {games.length === 0 ? (
+                <div className="text-center py-8">
+                    <p className="text-gray-500">No games available for this week.</p>
+                </div>
+            ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {games.map((game) => {
                     const alreadyPicked = isGameAlreadyPicked(game.id);
                     const existingPick = getExistingPick(game.id);
                     const selectedPick = selectedPicks[game.id];
@@ -286,22 +291,25 @@ function WeeklyPicks() {
                             )}
                         </div>
                     );
-                })}
-            </div>
-            
-            <div className="mt-6 flex justify-between items-center">
-                <div className="text-sm text-gray-600">
-                    Picks made: {Object.keys(selectedPicks).length + userPicks.length}/3
+                    })}
                 </div>
-                
-                <button 
-                    onClick={handleSubmitPicks}
-                    className="bg-green-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
-                    disabled={Object.keys(selectedPicks).length === 0 || submitting}
-                >
-                    {submitting ? 'Submitting...' : `Submit Picks (${Object.keys(selectedPicks).length})`}
-                </button>
-            </div>
+            )}
+            
+            {games.length > 0 && (
+                <div className="mt-6 flex justify-between items-center">
+                    <div className="text-sm text-gray-600">
+                        Picks made: {Object.keys(selectedPicks).length + userPicks.length}/3
+                    </div>
+                    
+                    <button 
+                        onClick={handleSubmitPicks}
+                        className="bg-green-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
+                        disabled={Object.keys(selectedPicks).length === 0 || submitting}
+                    >
+                        {submitting ? 'Submitting...' : `Submit Picks (${Object.keys(selectedPicks).length})`}
+                    </button>
+                </div>
+            )}
         </div>
     );
 }

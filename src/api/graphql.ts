@@ -43,9 +43,9 @@ export const GET_WEEKLY_NFL_GAME_SPREADS = `
   }
 `;
 
-export const CREATE_GAME_PICK = `
-  mutation CreateGamePick($input: NewGamePickInput!) {
-    CreateGamePick(input: $input) {
+export const CREATE_GAME_PICKS = `
+  mutation CreateGamePicks($input: [NewGamePickInput!]!) {
+    CreateGamePicks(input: $input) {
       id
       season_id
       week_id
@@ -54,6 +54,67 @@ export const CREATE_GAME_PICK = `
       spread_selection
       spread_result
       points_assigned
+    }
+  }
+`;
+
+export const SEASON_LEADERBOARD = `
+  query seasonLeaderboard($seasonId: ID!) {
+    seasonLeaderboard(seasonId: $seasonId) {
+      entries {
+        rank
+        username
+        points
+        isCurrentUser
+      }
+    }
+  }
+`;
+
+export const MY_SEASON_PICKS = `
+  query mySeasonPicks($seasonId: ID!) {
+    mySeasonPicks(seasonId: $seasonId) {
+      currentWeek
+      picks {
+        id
+        gameId
+        homeTeam
+        awayTeam
+        selectedTeam
+        spread
+        points
+        result
+      }
+    }
+  }
+`;
+
+export const SEASON_LEAGUE_PICKS = `
+  query seasonLeaguePicks($seasonId: ID!) {
+    seasonLeaguePicks(seasonId: $seasonId) {
+      currentWeek
+      userPicks {
+        username
+        picks {
+          id
+          gameId
+          homeTeam
+          awayTeam
+          selectedTeam
+          spread
+          points
+          result
+        }
+      }
+    }
+  }
+`;
+
+export const GET_CURRENT_SEASON_WEEK = `
+  query getCurrentSeasonWeek($seasonId: ID!) {
+    getCurrentSeasonWeek(seasonId: $seasonId) {
+      weekId
+      weekNumber
     }
   }
 `;
@@ -95,9 +156,53 @@ export interface NewGamePickInput {
     week_id: string;
     selected_team_name: string;
     opponent_team_name: string;
-    spread_selection: number;
-    spread_result: number;
-    points_assigned: number;
+    spread_selection: number; // int32 in backend
+    spread_result: number;    // int32 in backend
+    points_assigned: number;  // int32 in backend
+}
+
+export interface LeaderboardEntry {
+    rank: number;
+    username: string;
+    points: number;
+    isCurrentUser: boolean;
+}
+
+export interface SeasonLeaderboard {
+    entries: LeaderboardEntry[];
+}
+
+export type PickResult = 'WIN' | 'LOSS' | 'PENDING';
+
+export interface Pick {
+    id: string;
+    gameId: string;
+    homeTeam: string;
+    awayTeam: string;
+    selectedTeam: string;
+    spread: number;
+    points: number;
+    result?: PickResult;
+}
+
+export interface UserSeasonPicks {
+    currentWeek: number;
+    picks: Pick[];
+}
+
+export interface UserPicks {
+    username: string;
+    picks: Pick[];
+}
+
+export interface SeasonLeaguePicks {
+    currentWeek: number;
+    userPicks: UserPicks[];
+}
+
+export interface SeasonWeek {
+    weekId: string;
+    weekNumber: number;
 }
 
 // GraphQL API functions
@@ -118,11 +223,53 @@ export async function getWeeklyGames(): Promise<WeeklyGame[]> {
     return response.GetWeeklyNflGameSpreads;
 }
 
-export async function createGamePick(input: NewGamePickInput): Promise<GamePick> {
+export async function createGamePicks(input: NewGamePickInput[]): Promise<GamePick[]> {
     const client = createGraphQLClient();
-    const response = await client.request<{ CreateGamePick: GamePick }>(
-        CREATE_GAME_PICK,
+    const response = await client.request<{ CreateGamePicks: GamePick[] }>(
+        CREATE_GAME_PICKS,
         { input }
     );
-    return response.CreateGamePick;
+    return response.CreateGamePicks;
+}
+
+// Keep the singular version for backward compatibility
+export async function createGamePick(input: NewGamePickInput): Promise<GamePick> {
+    const picks = await createGamePicks([input]);
+    return picks[0];
+}
+
+export async function getSeasonLeaderboard(seasonId: string): Promise<SeasonLeaderboard> {
+    const client = createGraphQLClient();
+    const response = await client.request<{ seasonLeaderboard: SeasonLeaderboard }>(
+        SEASON_LEADERBOARD,
+        { seasonId }
+    );
+    return response.seasonLeaderboard;
+}
+
+export async function getMySeasonPicks(seasonId: string): Promise<UserSeasonPicks> {
+    const client = createGraphQLClient();
+    const response = await client.request<{ mySeasonPicks: UserSeasonPicks }>(
+        MY_SEASON_PICKS,
+        { seasonId }
+    );
+    return response.mySeasonPicks;
+}
+
+export async function getSeasonLeaguePicks(seasonId: string): Promise<SeasonLeaguePicks> {
+    const client = createGraphQLClient();
+    const response = await client.request<{ seasonLeaguePicks: SeasonLeaguePicks }>(
+        SEASON_LEAGUE_PICKS,
+        { seasonId }
+    );
+    return response.seasonLeaguePicks;
+}
+
+export async function getCurrentSeasonWeek(seasonId: string): Promise<SeasonWeek> {
+    const client = createGraphQLClient();
+    const response = await client.request<{ getCurrentSeasonWeek: SeasonWeek }>(
+        GET_CURRENT_SEASON_WEEK,
+        { seasonId }
+    );
+    return response.getCurrentSeasonWeek;
 }
