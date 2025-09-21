@@ -22,12 +22,7 @@ function LeagueDetails() {
         [leagueId]
     );
 
-    const mockSeasons: Season[] = [
-        { id: "1", year_start: 2024, year_end: 2025, sport: "football" },
-        { id: "2", year_start: 2023, year_end: 2024, sport: "football" },
-    ];
-
-    const displaySeasons = seasons || mockSeasons;
+    const displaySeasons = seasons || [];
     const displayLeague = league || { league_name: "League" };
 
     if (leagueLoading || seasonsLoading) {

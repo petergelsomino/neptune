@@ -1,6 +1,6 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useState } from "react";
-import { getWeeklyGames as getWeeklyGamesGraphQL, createGamePicks, getCurrentSeasonWeek, WeeklyGame, NewGamePickInput } from "../api/graphql";
+import { getWeeklyGames as getWeeklyGamesGraphQL, createGamePicks, getCurrentSeasonWeek, getMySeasonPicks, WeeklyGame, NewGamePickInput, UserSeasonPicks } from "../api/graphql";
 import { getLeagueFromUserLeagues } from "../api";
 import { useApi, useAsyncAction } from "../hooks/useApi";
 
@@ -38,6 +38,12 @@ function WeeklyPicks() {
         () => seasonId ? getCurrentSeasonWeek(seasonId) : Promise.reject("No seasonId"),
         [seasonId]
     );
+
+    // Fetch user's existing picks for this season
+    const { data: mySeasonPicks, loading: myPicksLoading, error: myPicksError } = useApi<UserSeasonPicks>(
+        () => seasonId ? getMySeasonPicks(seasonId) : Promise.reject("No seasonId"),
+        [seasonId]
+    );
     
     // Fetch games using GraphQL
     const { data: weeklyGames, loading: gamesLoading, error: gamesError } = useApi<WeeklyGame[]>(
@@ -59,9 +65,14 @@ function WeeklyPicks() {
             timeZoneName: 'short'
         })
     })) || [];
-    
-    // TODO: Fetch existing user picks from API
-    const userPicks: UserPick[] = [];
+
+    // Get current week picks from the fetched data
+    const userPicks: UserPick[] = mySeasonPicks?.picks?.map(pick => ({
+        gameId: pick.gameId,
+        points: pick.points,
+        selectedTeam: pick.selectedTeam === pick.homeTeam ? 'home' : 'away',
+        selectedSpread: pick.spread
+    })) || [];
     
     const { loading: submitting, error: submitError, execute: executeSubmit } = useAsyncAction();
 
@@ -69,6 +80,12 @@ function WeeklyPicks() {
         const usedPoints = Object.values(selectedPicks).map(pick => pick.points);
         const existingPoints = userPicks.map(pick => pick.points);
         const allUsedPoints = [...usedPoints, ...existingPoints];
+
+        // If user already has 3 picks total, no more points are available
+        if (userPicks.length + Object.keys(selectedPicks).length >= 3) {
+            return [];
+        }
+
         return [1, 2, 3].filter(point => !allUsedPoints.includes(point));
     };
 
@@ -145,7 +162,7 @@ function WeeklyPicks() {
     const availablePoints = getAvailablePoints();
 
     // Loading state
-    if (gamesLoading || weekLoading || leagueLoading) {
+    if (gamesLoading || weekLoading || leagueLoading || myPicksLoading) {
         return (
             <div className="p-4 max-w-4xl mx-auto">
                 <div className="flex justify-center items-center h-64">
@@ -156,12 +173,12 @@ function WeeklyPicks() {
     }
 
     // Error state
-    if (gamesError || weekError || leagueError) {
+    if (gamesError || weekError || leagueError || myPicksError) {
         return (
             <div className="p-4 max-w-4xl mx-auto">
                 <div className="bg-red-50 border border-red-200 rounded-lg p-4">
                     <h3 className="text-red-800 font-semibold mb-2">Error Loading Data</h3>
-                    <p className="text-red-600">{gamesError || weekError || leagueError}</p>
+                    <p className="text-red-600">{gamesError || weekError || leagueError || myPicksError}</p>
                 </div>
             </div>
         );
