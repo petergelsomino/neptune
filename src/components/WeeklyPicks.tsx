@@ -1,4 +1,4 @@
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { getWeeklyGames as getWeeklyGamesGraphQL, createGamePicks, getCurrentSeasonWeek, WeeklyGame, NewGamePickInput } from "../api/graphql";
 import { getLeagueFromUserLeagues } from "../api";
@@ -23,6 +23,7 @@ interface UserPick {
 
 function WeeklyPicks() {
     const { leagueId, seasonId } = useParams<{ leagueId: string; seasonId?: string }>();
+    const navigate = useNavigate();
     const [selectedPicks, setSelectedPicks] = useState<Record<string, {points: number, team: 'home' | 'away', spread: number}>>({});
     const [showSuccessPopup, setShowSuccessPopup] = useState(false);
     
@@ -168,8 +169,17 @@ function WeeklyPicks() {
 
     return (
         <div className="p-4 max-w-6xl mx-auto">
-            <h2 className="text-2xl font-bold mb-2">Week {currentWeekData?.weekNumber || 1} Picks - {league?.league_name || 'League'}</h2>
-            <p className="text-gray-600 mb-2">Select 3 games and assign 1, 2, or 3 points to each pick</p>
+            <div className="mb-4">
+                <button
+                    onClick={() => navigate(`/league/${leagueId}/season/${seasonId}`)}
+                    className="flex items-center text-blue-600 hover:text-blue-800 font-medium mb-3 transition-colors"
+                >
+                    <span className="mr-2">←</span>
+                    Back to Season
+                </button>
+                <h2 className="text-2xl font-bold mb-2">Week {currentWeekData?.weekNumber || 1} Picks - {league?.league_name || 'League'}</h2>
+                <p className="text-gray-600 mb-2">Select 3 games and assign 1, 2, or 3 points to each pick</p>
+            </div>
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-6">
                 <p className="text-blue-800 text-sm">
                     ℹ️ Games will appear 24 hours before they are eligible for selection.

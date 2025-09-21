@@ -11,7 +11,7 @@ function App() {
     return (
         <Router>
             <Routes>
-                <Route path="/" element={<LoginPage />} />
+                <Route path="/login" element={<LoginPage />} />
                 <Route element={<Layout />}>
                     <Route path="/home" element={<HomePage />} />
                     <Route path="/league/:leagueId" element={<LeagueDetails />} />

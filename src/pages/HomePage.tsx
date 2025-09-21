@@ -8,11 +8,6 @@ interface League {
     league_name: string;
 }
 
-const mockLeagues = [
-    { id: "8328ccf8-5660-444e-9ab7-19a1191adc79", league_name: "Home Dudes" },
-    { id: "2", league_name: "Mock League 2" },
-];
-
 function HomePage() {
     const navigate = useNavigate();
     const [hasToken, setHasToken] = useState(false);
@@ -34,7 +29,7 @@ function HomePage() {
     );
     
     // Fallback to mock data if API fails
-    const displayLeagues = leagues?.length ? leagues : mockLeagues;
+    const displayLeagues = leagues?.length ? leagues : [];
 
     if (!hasToken) {
         return null; // Will redirect to login
