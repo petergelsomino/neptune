@@ -97,9 +97,9 @@ function SeasonDetails() {
                         {leaderboard.entries.map((entry) => (
                             <div
                                 key={entry.rank}
-                                className={`flex items-center justify-between p-3 rounded-lg ${
-                                    entry.isCurrentUser 
-                                        ? 'bg-blue-50 border border-blue-200' 
+                                className={`flex items-center justify-between p-4 rounded-lg ${
+                                    entry.isCurrentUser
+                                        ? 'bg-blue-50 border border-blue-200'
                                         : 'bg-gray-50'
                                 }`}
                             >
@@ -112,16 +112,21 @@ function SeasonDetails() {
                                     }`}>
                                         {entry.rank}
                                     </div>
-                                    <span className={`font-medium ${
-                                        entry.isCurrentUser ? 'text-blue-900' : 'text-gray-900'
-                                    }`}>
-                                        {entry.username}
-                                    </span>
-                                    {entry.isCurrentUser && (
-                                        <span className="text-xs bg-blue-600 text-white px-2 py-1 rounded-full">
-                                            You
+                                    <div>
+                                        <span className={`font-medium ${
+                                            entry.isCurrentUser ? 'text-blue-900' : 'text-gray-900'
+                                        }`}>
+                                            {entry.username}
                                         </span>
-                                    )}
+                                        {entry.isCurrentUser && (
+                                            <span className="text-xs bg-blue-600 text-white px-2 py-1 rounded-full ml-2">
+                                                You
+                                            </span>
+                                        )}
+                                        <div className="text-xs text-gray-600 mt-1">
+                                            {entry.winningPicks} winning picks • {Math.round(entry.winRate * 100)}% win rate
+                                        </div>
+                                    </div>
                                 </div>
                                 <span className="font-semibold text-gray-900">{entry.points} pts</span>
                             </div>

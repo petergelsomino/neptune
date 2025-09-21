@@ -83,6 +83,8 @@ export const SEASON_LEADERBOARD = `
         username
         points
         isCurrentUser
+        winningPicks
+        winRate
       }
     }
   }
@@ -179,11 +181,15 @@ export interface NewGamePickInput {
     odds_game_id: string;
 }
 
+// TODO: Update this interface when backend GraphQL schema is updated to include new fields:
+// userID, firstName, lastName, email, totalPoints, totalPicks, winningPicks, winRate
 export interface LeaderboardEntry {
     rank: number;
     username: string;
     points: number;
     isCurrentUser: boolean;
+    winningPicks: number;
+    winRate: number;
 }
 
 export interface SeasonLeaderboard {
