@@ -37,7 +37,7 @@ function HomePage() {
 
     if (loading) {
         return (
-            <div className="p-4">
+            <div className="p-4 max-w-4xl mx-auto">
                 <div className="flex justify-center items-center h-32">
                     <div className="text-lg text-gray-600">Loading your leagues...</div>
                 </div>
@@ -47,53 +47,51 @@ function HomePage() {
 
     if (error) {
         return (
-            <div className="p-4">
+            <div className="p-4 max-w-4xl mx-auto">
                 <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-4">
-                    <h3 className="text-yellow-800 font-semibold mb-2">Could not load leagues from server</h3>
-                    <p className="text-yellow-700 text-sm mb-2">Error: {error}</p>
-                    <p className="text-sm text-yellow-600">Using mock data for development...</p>
-                </div>
-                <div className="mb-4">
-                    <h2 className="text-xl mb-4">Your Leagues</h2>
-                    {displayLeagues.length === 0 ? (
-                        <p className="text-gray-500">No leagues found. Join a league to get started!</p>
-                    ) : (
-                        <ul className="space-y-2">
-                            {displayLeagues.map((league) => (
-                                <li key={league.id}>
-                                    <button
-                                        className="text-blue-500 underline hover:text-blue-700"
-                                        onClick={() => navigate(`/league/${league.id}`)}
-                                    >
-                                        {league.league_name}
-                                    </button>
-                                </li>
-                            ))}
-                        </ul>
-                    )}
+                    <p className="text-yellow-800">Could not load leagues: {error}</p>
+                    <p className="text-sm text-yellow-600 mt-1">Using mock data for development...</p>
                 </div>
             </div>
         );
     }
 
     return (
-        <div className="p-4">
-            <h2 className="text-xl mb-4">Your Leagues</h2>
+        <div className="p-4 max-w-4xl mx-auto">
+            <h2 className="text-2xl font-bold mb-6">Your Leagues</h2>
+
             {displayLeagues.length === 0 ? (
                 <p className="text-gray-500">No leagues found. Join a league to get started!</p>
             ) : (
-                <ul className="space-y-2">
+                <div className="grid gap-4 md:grid-cols-2">
                     {displayLeagues.map((league) => (
-                        <li key={league.id}>
+                        <div
+                            key={league.id}
+                            className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow"
+                        >
+                            <div className="flex justify-between items-start mb-4">
+                                <div>
+                                    <h3 className="text-xl font-semibold text-gray-900">
+                                        {league.league_name}
+                                    </h3>
+                                    <p className="text-sm text-gray-600">
+                                        League
+                                    </p>
+                                </div>
+                                <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs font-medium">
+                                    Active
+                                </span>
+                            </div>
+
                             <button
-                                className="text-blue-500 underline hover:text-blue-700"
-                                onClick={() => navigate(`/league/${league.id}`)}
+                                onClick={() => navigate(`/league/${league.id}/seasons`)}
+                                className="w-full bg-green-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-green-700 transition-colors"
                             >
-                                {league.league_name}
+                                View League
                             </button>
-                        </li>
+                        </div>
                     ))}
-                </ul>
+                </div>
             )}
         </div>
     );

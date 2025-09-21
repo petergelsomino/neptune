@@ -74,6 +74,13 @@ function SeasonDetails() {
     return (
         <div className="p-4 max-w-6xl mx-auto">
             <div className="mb-6">
+                <button
+                    onClick={() => navigate(`/league/${leagueId}/seasons`)}
+                    className="flex items-center text-blue-600 hover:text-blue-800 font-medium mb-3 transition-colors"
+                >
+                    <span className="mr-2">←</span>
+                    Back to Season List
+                </button>
                 <h1 className="text-2xl font-bold text-gray-900">{displayLeague.league_name}</h1>
                 <h2 className="text-lg text-gray-600">
                     {currentSeason.year_start}-{currentSeason.year_end} {currentSeason.sport} Season

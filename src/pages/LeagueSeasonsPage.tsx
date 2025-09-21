@@ -41,8 +41,16 @@ function LeagueSeasonsPage() {
 
     return (
         <div className="p-4 max-w-4xl mx-auto">
+
+            <button
+                onClick={() => navigate("/home")}
+                className="mt-6 text-blue-600 hover:text-blue-800 underline"
+            >
+                ← Back to Home
+            </button>
+
             <h2 className="text-2xl font-bold mb-6">League Seasons</h2>
-            
+
             {displaySeasons.length === 0 ? (
                 <p className="text-gray-500">No seasons found for this league.</p>
             ) : (
@@ -67,22 +75,15 @@ function LeagueSeasonsPage() {
                             </div>
                             
                             <button
-                                onClick={() => navigate(`/league/${leagueId}/season/${season.id}/picks`)}
+                                onClick={() => navigate(`/league/${leagueId}/season/${season.id}`)}
                                 className="w-full bg-green-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-green-700 transition-colors"
                             >
-                                View Picks
+                                Season Details
                             </button>
                         </div>
                     ))}
                 </div>
             )}
-            
-            <button
-                onClick={() => navigate(-1)}
-                className="mt-6 text-blue-600 hover:text-blue-800 underline"
-            >
-                ← Back to Leagues
-            </button>
         </div>
     );
 }
