@@ -18,7 +18,7 @@ export async function apiRequest<T>(
         // Handle unauthorized responses
         if (res.status === 401) {
             logout();
-            window.location.href = '/login';
+            window.location.href = '/';
             throw new Error('Unauthorized');
         }
         

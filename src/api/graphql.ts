@@ -23,7 +23,7 @@ export async function graphQLRequest<T>(query: string, variables?: any): Promise
         // Check if it's an unauthorized error
         if (error?.response?.status === 401 || error?.message?.includes('Unauthorized') || error?.message?.includes('401')) {
             logout();
-            window.location.href = '/login';
+            window.location.href = '/';
         }
         throw error;
     }
