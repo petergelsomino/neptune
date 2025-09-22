@@ -67,7 +67,7 @@ export const CREATE_GAME_PICKS = `
       week_id
       selected_team_name
       opponent_team_name
-      spread_selection
+      spread_line
       spread_result
       points_assigned
       oddsGameId
@@ -165,7 +165,7 @@ export interface GamePick {
     week_id: string;
     selected_team_name: string;
     opponent_team_name: string;
-    spread_selection: number;
+    spread_line: number;
     spread_result: number;
     points_assigned: number;
 }
@@ -175,7 +175,7 @@ export interface NewGamePickInput {
     week_id: string;
     selected_team_name: string;
     opponent_team_name: string;
-    spread_selection: number; // int32 in backend
+    spread_line: number; // int32 in backend
     spread_result: number;    // int32 in backend
     points_assigned: number;  // int32 in backend
     odds_game_id: string;

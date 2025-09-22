@@ -131,7 +131,7 @@ function WeeklyPicks() {
                     week_id: currentWeekData.weekId,
                     selected_team_name: pick.team === 'home' ? game.homeTeam : game.awayTeam,
                     opponent_team_name: pick.team === 'home' ? game.awayTeam : game.homeTeam,
-                    spread_selection: Math.round(pick.spread * 10), // Convert spread to integer by multiplying by 10
+                    spread_line: Math.round(pick.spread * 10), // Convert spread to integer by multiplying by 10
                     spread_result: 0, // Will be updated when game is completed
                     points_assigned: pick.points,
                     odds_game_id: game.id
@@ -215,7 +215,7 @@ function WeeklyPicks() {
                     <div className="bg-white rounded-lg p-8 text-center max-w-sm mx-4">
                         <div className="text-6xl mb-4">🎉</div>
                         <h3 className="text-xl font-bold text-green-600 mb-2">Picks Submitted!</h3>
-                        <p className="text-gray-600">Your picks have been successfully submitted. Good luck!</p>
+                        <p className="text-gray-600">Don't complain like Dan!</p>
                         <button 
                             onClick={() => {
                                 setShowSuccessPopup(false);
