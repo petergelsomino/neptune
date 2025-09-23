@@ -4,7 +4,7 @@ interface HeaderProps {
     title?: string;
 }
 
-function Header({ title = "Home Boys Confidence Pool" }: HeaderProps) {
+function Header({ title = "GBD Confidence Pool" }: HeaderProps) {
     const handleLogout = () => {
         logout();
         window.location.href = '/';

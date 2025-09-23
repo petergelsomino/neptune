@@ -50,7 +50,7 @@ function LoginPage() {
                     {/* App Title */}
                     <div className="text-center mb-8">
                         <h1 className="text-4xl font-bold text-white mb-2 tracking-tight">
-                            Neptune
+                            GBD Pool
                         </h1>
                         <p className="text-gray-300 text-sm">Welcome back</p>
                     </div>
