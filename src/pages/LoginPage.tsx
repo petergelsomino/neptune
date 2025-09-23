@@ -35,12 +35,12 @@ function LoginPage() {
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-red-900 flex items-center justify-center px-4">
+        <div className="min-h-screen bg-gradient-to-br from-gray-800 via-gray-700 to-gray-900 flex items-center justify-center px-4">
             {/* Animated background elements */}
             <div className="absolute inset-0 overflow-hidden">
-                <div className="absolute -top-40 -right-40 w-80 h-80 bg-red-600 rounded-full mix-blend-multiply filter blur-xl opacity-15 animate-pulse"></div>
-                <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-red-800 rounded-full mix-blend-multiply filter blur-xl opacity-15 animate-pulse animation-delay-2000"></div>
-                <div className="absolute top-40 left-40 w-60 h-60 bg-red-500 rounded-full mix-blend-multiply filter blur-xl opacity-15 animate-pulse animation-delay-4000"></div>
+                <div className="absolute -top-40 -right-40 w-80 h-80 bg-gray-600 rounded-full mix-blend-multiply filter blur-xl opacity-15 animate-pulse"></div>
+                <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gray-800 rounded-full mix-blend-multiply filter blur-xl opacity-15 animate-pulse animation-delay-2000"></div>
+                <div className="absolute top-40 left-40 w-60 h-60 bg-gray-500 rounded-full mix-blend-multiply filter blur-xl opacity-15 animate-pulse animation-delay-4000"></div>
             </div>
 
             {/* Main login card */}
@@ -70,12 +70,12 @@ function LoginPage() {
                                 onChange={(e) => setEmail(e.target.value)}
                                 onFocus={() => setEmailFocused(true)}
                                 onBlur={() => setEmailFocused(false)}
-                                className="w-full bg-white/10 border border-white/20 rounded-xl pl-10 pr-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all duration-200 backdrop-blur-sm"
+                                className="w-full bg-white/10 border border-white/20 rounded-xl pl-10 pr-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 backdrop-blur-sm"
                                 placeholder="Email address"
                                 required
                             />
                             <label className={`absolute left-10 transition-all duration-200 pointer-events-none ${
-                                emailFocused || email ? '-top-2 text-xs text-red-300 bg-gray-900/80 px-2 rounded' : 'top-1/2 transform -translate-y-1/2 text-gray-400'
+                                emailFocused || email ? '-top-2 text-xs text-blue-300 bg-gray-900/80 px-2 rounded' : 'top-1/2 transform -translate-y-1/2 text-gray-400'
                             }`}>
                                 {!(emailFocused || email) && "Email address"}
                             </label>
@@ -94,12 +94,12 @@ function LoginPage() {
                                 onChange={(e) => setPassword(e.target.value)}
                                 onFocus={() => setPasswordFocused(true)}
                                 onBlur={() => setPasswordFocused(false)}
-                                className="w-full bg-white/10 border border-white/20 rounded-xl pl-10 pr-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all duration-200 backdrop-blur-sm"
+                                className="w-full bg-white/10 border border-white/20 rounded-xl pl-10 pr-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 backdrop-blur-sm"
                                 placeholder="Password"
                                 required
                             />
                             <label className={`absolute left-10 transition-all duration-200 pointer-events-none ${
-                                passwordFocused || password ? '-top-2 text-xs text-red-300 bg-gray-900/80 px-2 rounded' : 'top-1/2 transform -translate-y-1/2 text-gray-400'
+                                passwordFocused || password ? '-top-2 text-xs text-blue-300 bg-gray-900/80 px-2 rounded' : 'top-1/2 transform -translate-y-1/2 text-gray-400'
                             }`}>
                                 {!(passwordFocused || password) && "Password"}
                             </label>
@@ -108,7 +108,7 @@ function LoginPage() {
                         {/* Login Button */}
                         <button
                             type="submit"
-                            className="w-full bg-gradient-to-r from-red-600 to-black hover:from-red-700 hover:to-gray-900 text-white font-semibold py-3 px-6 rounded-xl transition-all duration-300 transform hover:scale-105 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:ring-offset-transparent"
+                            className="w-full bg-gradient-to-r from-blue-600 to-gray-800 hover:from-blue-700 hover:to-gray-900 text-white font-semibold py-3 px-6 rounded-xl transition-all duration-300 transform hover:scale-105 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-transparent"
                             disabled={loading}
                         >
                             {loading ? (
@@ -126,14 +126,14 @@ function LoginPage() {
 
                         {/* Error Message */}
                         {error && (
-                            <div className="bg-red-500/20 border border-red-500/30 backdrop-blur-sm rounded-xl p-4 animate-fadeIn">
+                            <div className="bg-blue-500/20 border border-blue-500/30 backdrop-blur-sm rounded-xl p-4 animate-fadeIn">
                                 <div className="flex items-center">
-                                    <svg className="w-5 h-5 text-red-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <svg className="w-5 h-5 text-blue-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                                     </svg>
-                                    <p className="text-red-200 text-sm font-medium">{error}</p>
+                                    <p className="text-blue-200 text-sm font-medium">{error}</p>
                                 </div>
-                                <p className="text-red-300/70 text-xs mt-2 ml-7">
+                                <p className="text-blue-300/70 text-xs mt-2 ml-7">
                                     Development fallback: Try admin@example.com/password
                                 </p>
                             </div>
