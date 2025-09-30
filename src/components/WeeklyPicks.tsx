@@ -1,5 +1,5 @@
 import { useParams, useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { getWeeklyGames as getWeeklyGamesGraphQL, createGamePicks, getCurrentSeasonWeek, getMySeasonPicks, WeeklyGame, NewGamePickInput, UserSeasonPicks } from "../api/graphql";
 import { getLeagueFromUserLeagues } from "../api";
 import { useApi, useAsyncAction } from "../hooks/useApi";
@@ -75,6 +75,15 @@ function WeeklyPicks() {
     })) || [];
     
     const { loading: submitting, error: submitError, execute: executeSubmit } = useAsyncAction();
+
+    // Auto-refresh page every 2 minutes
+    useEffect(() => {
+        const interval = setInterval(() => {
+            window.location.reload();
+        }, 2 * 60 * 1000); // 2 minutes in milliseconds
+
+        return () => clearInterval(interval);
+    }, []);
 
     const getAvailablePoints = () => {
         const usedPoints = Object.values(selectedPicks).map(pick => pick.points);
@@ -199,7 +208,7 @@ function WeeklyPicks() {
             </div>
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-6">
                 <p className="text-blue-800 text-sm">
-                    ℹ️ Games will appear 24 hours before they are eligible for selection.
+                    ℹ️ Games will appear 12 hours before they are eligible for selection.
                 </p>
             </div>
             
