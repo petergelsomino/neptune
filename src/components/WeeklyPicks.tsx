@@ -26,6 +26,7 @@ function WeeklyPicks() {
     const navigate = useNavigate();
     const [selectedPicks, setSelectedPicks] = useState<Record<string, {points: number, team: 'home' | 'away', spread: number}>>({});
     const [showSuccessPopup, setShowSuccessPopup] = useState(false);
+    const [countdown, setCountdown] = useState(5 * 60);
     
     // Fetch league data
     const { data: league, loading: leagueLoading, error: leagueError } = useApi<{id: string; league_name: string} | null>(
@@ -76,13 +77,22 @@ function WeeklyPicks() {
     
     const { loading: submitting, error: submitError, execute: executeSubmit } = useAsyncAction();
 
-    // Auto-refresh page every 2 minutes
+    // Auto-refresh page every 5 minutes
     useEffect(() => {
         const interval = setInterval(() => {
             window.location.reload();
-        }, 2 * 60 * 1000); // 2 minutes in milliseconds
+        }, 5 * 60 * 1000); // 5 minutes in milliseconds
 
         return () => clearInterval(interval);
+    }, []);
+
+    // Countdown ticker
+    useEffect(() => {
+        setCountdown(5 * 60);
+        const tick = setInterval(() => {
+            setCountdown(prev => (prev <= 1 ? 5 * 60 : prev - 1));
+        }, 1000);
+        return () => clearInterval(tick);
     }, []);
 
     const getAvailablePoints = () => {
@@ -195,6 +205,10 @@ function WeeklyPicks() {
 
     return (
         <div className="p-4 max-w-6xl mx-auto">
+            <div className="fixed top-4 right-4 z-50 bg-white border border-gray-200 rounded-full shadow px-3 py-1 text-xs text-gray-500 flex items-center gap-1">
+                <span>⟳</span>
+                <span>Refreshing in {Math.floor(countdown / 60)}:{String(countdown % 60).padStart(2, '0')}</span>
+            </div>
             <div className="mb-4">
                 <button
                     onClick={() => navigate(`/league/${leagueId}/season/${seasonId}`)}
@@ -224,7 +238,7 @@ function WeeklyPicks() {
                     <div className="bg-white rounded-lg p-8 text-center max-w-sm mx-4">
                         <div className="text-6xl mb-4">🎉</div>
                         <h3 className="text-xl font-bold text-green-600 mb-2">Picks Submitted!</h3>
-                        <p className="text-gray-600">Don't complain like Dan!</p>
+                        <p className="text-gray-600">Good luck!</p>
                         <button 
                             onClick={() => {
                                 setShowSuccessPopup(false);

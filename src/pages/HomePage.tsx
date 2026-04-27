@@ -11,6 +11,7 @@ interface League {
 function HomePage() {
     const navigate = useNavigate();
     const [hasToken, setHasToken] = useState(false);
+    const [showAbout, setShowAbout] = useState(false);
     
     useEffect(() => {
         const token = localStorage.getItem('token');
@@ -93,6 +94,57 @@ function HomePage() {
                     ))}
                 </div>
             )}
+
+            {/* About / How it Works */}
+            <div className="mt-10 border border-gray-200 rounded-lg overflow-hidden">
+                <button
+                    onClick={() => setShowAbout(prev => !prev)}
+                    className="w-full flex justify-between items-center px-6 py-4 bg-gray-50 hover:bg-gray-100 transition-colors text-left"
+                >
+                    <span className="text-lg font-semibold text-gray-800">How PicksPool Works</span>
+                    <span className="text-gray-500 text-xl">{showAbout ? "−" : "+"}</span>
+                </button>
+
+                {showAbout && (
+                    <div className="px-6 py-5 bg-white space-y-6 text-gray-700">
+                        <p className="text-gray-500 text-sm">
+                            PicksPool is a confidence-based football picks pool. Each week you pick games against the spread and stake your confidence points — the better you feel about a pick, the more points you put on it.
+                        </p>
+
+                        <div className="grid gap-4 md:grid-cols-3">
+                            <div className="bg-blue-50 rounded-lg p-4">
+                                <div className="text-2xl mb-2">1</div>
+                                <h4 className="font-semibold text-gray-800 mb-1">Pick 3 Games</h4>
+                                <p className="text-sm text-gray-600">Each week, choose 3 NFL games you want to bet on against the spread.</p>
+                            </div>
+                            <div className="bg-blue-50 rounded-lg p-4">
+                                <div className="text-2xl mb-2">2</div>
+                                <h4 className="font-semibold text-gray-800 mb-1">Assign Points</h4>
+                                <p className="text-sm text-gray-600">Assign 1, 2, or 3 confidence points to each pick — 3 for your most confident game.</p>
+                            </div>
+                            <div className="bg-blue-50 rounded-lg p-4">
+                                <div className="text-2xl mb-2">3</div>
+                                <h4 className="font-semibold text-gray-800 mb-1">Earn Points</h4>
+                                <p className="text-sm text-gray-600">If your pick wins against the spread, you earn the points you assigned. Most points at the end of the season wins.</p>
+                            </div>
+                        </div>
+
+                        <div>
+                            <h4 className="font-semibold text-gray-800 mb-2">The Spread</h4>
+                            <p className="text-sm text-gray-600">
+                                Each game has a point spread — the favorite must win by more than the spread, and the underdog must lose by less (or win outright) for your pick to count. Spreads make every game competitive to bet on.
+                            </p>
+                        </div>
+
+                        <div>
+                            <h4 className="font-semibold text-gray-800 mb-2">Leagues & Seasons</h4>
+                            <p className="text-sm text-gray-600">
+                                Leagues are private groups you play with your friends. Each season runs through the NFL schedule. Your picks and standings are tracked within your league — compete to top the leaderboard by the end of the season.
+                            </p>
+                        </div>
+                    </div>
+                )}
+            </div>
         </div>
     );
 }
